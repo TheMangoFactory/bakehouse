@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+
+	<description>Bakehouse JSP Tag Library</description>
+	<tlib-version>3.0</tlib-version>
+	<short-name>bakehouse</short-name>
+	<uri>http://www.mangofactory.com/bakehouse</uri>
+
+	<tag>
+		<description>
+			Defines a set of script tags
+		</description>
+		<name>resources</name>
+		<tag-class>com.mangofactory.bakehouse.core.tags.ResourcesTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Defines a configurtion to process the enclosing set of resources</description>
+			<name>configuration</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Defines the expected resource type - eg., 'text/javascript'</description>
+			<name>type</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>resource</name>
+		<tag-class>com.mangofactory.bakehouse.core.tags.ResourceTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<description>Defines the path to the resource</description>
+			<name>src</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+</taglib>
