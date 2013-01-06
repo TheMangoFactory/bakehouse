@@ -52,6 +52,8 @@ In production, the above generates the following html:
             <script src='/bakehouse-example/generated/TypescriptCode.js' type='text/javascript'></script>
         </head>
 
+Note - there's an actual working demo project available [here](https://github.com/martypitt/bakehouse-example)
+
 # Wanna see more?
 This project is currently a POC only.
 If you're interested, and wanna see it developed, you need to let me know!
