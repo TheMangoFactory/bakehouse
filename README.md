@@ -51,3 +51,7 @@ In production, the above generates the following html:
 		<script src='/bakehouse-example/generated/TypescriptCode.js' type='text/javascript'></script>
 	</head>
 
+# Wanna see more?
+This project is currently a POC only.
+If you're interested, and wanna see it developed, you need to let me know!
+Add your voice to the conversation [here](https://github.com/martypitt/bakehouse/issues/4)
