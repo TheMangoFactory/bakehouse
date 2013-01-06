@@ -1,4 +1,4 @@
-package com.mangofactory.bakehouse.typescript;
+package com.mangofactory.bakehouse.core.compilers;
 
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.LogOutputStream;

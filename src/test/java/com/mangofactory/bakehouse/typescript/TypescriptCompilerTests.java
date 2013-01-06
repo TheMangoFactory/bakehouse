@@ -1,8 +1,6 @@
 package com.mangofactory.bakehouse.typescript;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -11,14 +9,14 @@ import java.io.File;
 import lombok.SneakyThrows;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.mangofactory.bakehouse.core.AbstractFileManipulationTests;
 import com.mangofactory.bakehouse.core.DefaultResource;
+import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 
-public class TypescriptProcessTests extends AbstractFileManipulationTests {
+public class TypescriptCompilerTests extends AbstractFileManipulationTests {
 
 	TypescriptCompiler process;
 	@Before
@@ -44,10 +42,5 @@ public class TypescriptProcessTests extends AbstractFileManipulationTests {
 		expectedTypescript = normalizeLineEndings(expectedTypescript);
 		
 		assertThat(generatedTypescript, equalTo(expectedTypescript));
-	}
-	private String normalizeLineEndings(String input) {
-		input = input.replaceAll("\\r\\n", "\n");
-		input = input.replaceAll("\\r", "\n");
-		return input;
 	}
 }

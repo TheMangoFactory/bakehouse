@@ -1,4 +1,4 @@
-package com.mangofactory.bakehouse.typescript;
+package com.mangofactory.bakehouse.core.compilers;
 
 import com.mangofactory.bakehouse.core.Resource;
 

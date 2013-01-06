@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -82,5 +83,11 @@ public abstract class AbstractFileManipulationTests {
 		FileUtils.copyFile(source, tempFile);
 		filesToCleanUp.add(tempFile);
 		return tempFile;
+	}
+	protected String normalizeLineEndings(String input) {
+		input = input.replaceAll("\\r\\n", "\n");
+		input = input.replaceAll("\\r", "\n");
+		input = StringUtils.trim(input);
+		return input;
 	}
 }
