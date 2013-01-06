@@ -14,14 +14,13 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileMonitor;
-import org.apache.commons.vfs2.util.FileObjectUtils;
-import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mangofactory.bakehouse.core.ResourceCache.BuildResourceRequest;
+import com.mangofactory.bakehouse.config.BakehouseConfig;
+import com.mangofactory.bakehouse.core.io.FileManager;
 
-@Component @Slf4j
+@Slf4j
 public class ResourceCache {
 
 	private Map<String, List<ResourceProcessor>> configurationMap = Maps.newHashMap();
@@ -29,12 +28,15 @@ public class ResourceCache {
 	private CacheInvalidatingFileListener fileListener;
 	private DefaultFileMonitor fileMonitor;
 	private FileSystemManager fileSystemManager;
-	
-	public ResourceCache() throws FileSystemException {
-		this(VFS.getManager());
+	private final FileManager fileManager;
+	public ResourceCache(FileManager fileManager) throws FileSystemException {
+		this(VFS.getManager(), fileManager);
 	}
-	public ResourceCache(FileSystemManager fileSystemManager)
+	
+	// TODO: Issue #3 - Consolidate FileManager and FileSystemManager 
+	public ResourceCache(FileSystemManager fileSystemManager, FileManager fileManager)
 	{
+		this.fileManager = fileManager;
 		fileListener = new CacheInvalidatingFileListener(this);
 		fileMonitor = new DefaultFileMonitor(fileListener);
 		fileMonitor.start();
@@ -159,6 +161,15 @@ public class ResourceCache {
 				String configuration = filesToConfiguration.get(filePath);
 				log.info("File '{}' changed - invalidating cache for configuration '{}'",event.getFile().getName().getBaseName(),configuration);
 				cache.invalidate(configuration);
+			}
+		}
+	}
+
+	public void configureProcessors(BakehouseConfig bakehouseConfig) {
+		for (List<ResourceProcessor> processorList : configurationMap.values())
+		{
+			for (ResourceProcessor resourceProcessor : processorList) {
+				resourceProcessor.configure(bakehouseConfig);
 			}
 		}
 	}

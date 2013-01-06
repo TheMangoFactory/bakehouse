@@ -4,7 +4,7 @@
 	version="2.0">
 
 	<description>Bakehouse JSP Tag Library</description>
-	<tlib-version>3.0</tlib-version>
+	<tlib-version>1.0</tlib-version>
 	<short-name>bakehouse</short-name>
 	<uri>http://www.mangofactory.com/bakehouse</uri>
 
@@ -30,13 +30,20 @@
 	</tag>
 
 	<tag>
+		<description>Defines a resource - either as standalone, or as part of a resources configuration</description>
 		<name>resource</name>
 		<tag-class>com.mangofactory.bakehouse.core.tags.ResourceTag</tag-class>
-		<body-content>empty</body-content>
+		<body-content>scriptless</body-content>
 		<attribute>
 			<description>Defines the path to the resource</description>
 			<name>src</name>
 			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Defines an optional CDN to use when serveFromCdn is set to true</description>
+			<name>cdn</name>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>

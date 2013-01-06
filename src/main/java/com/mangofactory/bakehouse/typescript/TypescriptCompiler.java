@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mangofactory.bakehouse.core.CompilationFailedResource;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.exec.LogCollectingOutputStream;
@@ -79,6 +80,7 @@ public class TypescriptCompiler {
 			compiledResource = DefaultResource.fromFiles("text/javascript", targetFile);
 		} else {
 			log.warn("Compiling typescript failed: {} ", outputReader.toString());
+			compiledResource = new CompilationFailedResource(resource, outputReader.toString());
 		}
 		return new ProcessCompilationResult(executor, exitCode, outputReader, compiledResource);
 	}

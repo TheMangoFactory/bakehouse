@@ -15,18 +15,19 @@ import org.junit.Test;
 import com.mangofactory.bakehouse.core.AbstractFileManipulationTests;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
-import com.mangofactory.bakehouse.core.io.FileRepository;
+import com.mangofactory.bakehouse.core.io.FileManager;
 
 public class ConcatenateResourcesProcessorTests extends AbstractFileManipulationTests {
 
 	private ConcatenateResourcesProcessor processor;
 
-	FileRepository fileRepository;
+	FileManager fileRepository;
 	@Before
 	public void setup()
 	{
-		fileRepository = new FileRepository(getGeneratedAssetsFolder());
-		processor = new ConcatenateResourcesProcessor("AppCode.js",fileRepository);
+		fileRepository = new FileManager(getGeneratedAssetsFolder());
+		processor = new ConcatenateResourcesProcessor("AppCode.js");
+		processor.setFileRepository(fileRepository);
 	}
 	@Test @SneakyThrows
 	public void concatenatesFiles()

@@ -3,24 +3,17 @@ package com.mangofactory.bakehouse.core.tags;
 import java.util.Set;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import com.google.common.collect.Sets;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.ResourceCache;
 
-@Slf4j @Component
-public class ResourcesTag extends TagSupport {
+public class ResourcesTag extends SpringAwareTagSupport {
 
 	ResourceCache _resourceCache;
 	
@@ -50,8 +43,7 @@ public class ResourcesTag extends TagSupport {
 	private ResourceCache getResourceCache() {
 		if (_resourceCache == null)
 		{
-			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(pageContext.getServletContext());
-			_resourceCache = applicationContext.getBean(ResourceCache.class);
+			_resourceCache = getBean(ResourceCache.class);
 		}
 		return _resourceCache;
 	}

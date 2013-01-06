@@ -14,18 +14,17 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
-@Component
 @Slf4j
-public class FileRepository implements ApplicationContextAware {
+public class FileManager implements ApplicationContextAware {
 
 	private File targetDir;
 	private WebApplicationContext wac;
 	
-	public FileRepository()
+	public FileManager()
 	{
 		this(new File("generated"));
 	}
-	public FileRepository(File targetDir)
+	public FileManager(File targetDir)
 	{
 		this.targetDir = targetDir;
 	}
