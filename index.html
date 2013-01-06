@@ -1,78 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Bakehouse by martypitt</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>Bakehouse by martypitt</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
+    <div class="wrapper">
+      <header>
         <h1>Bakehouse</h1>
-        <h2>Streamlines web pre-processors for Spring resources</h2>
-        <a href="https://github.com/martypitt/bakehouse" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+        <p>Streamlines web pre-processors for Spring resources</p>
+        <p class="view"><a href="https://github.com/martypitt/bakehouse">View the Project on GitHub <small>martypitt/bakehouse</small></a></p>
+        <ul>
+          <li><a href="https://github.com/martypitt/bakehouse/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/martypitt/bakehouse/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/martypitt/bakehouse">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>Bakehouse - cooks up your HTML resources for you.</h3>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h3>Welcome to GitHub Pages.</h3>
+<p>Bakehouse is a framework for moving pre-processing of web artifacts to the server.</p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>In a typical web project these days, you're likely to have a bunch of tasks that run on your artifacts.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>Eg:</p>
+
+<ul>
+<li><a href="http://lesscss.org/">Less for your CSS</a></li>
+<li><a href="https://developers.google.com/closure/compiler/">Concatenate and minify your Javascript</a></li>
+<li>Maybe even use some <a href="http://www.typescriptlang.org/">Typescript</a> or <a href="http://coffeescript.org/">CoffeeScript</a>, which needs to be compiled</li>
+</ul><p>However, the type of processing you want to apply often varies between Production and Development environments.  (Eg., non-minified code in dev, serve from a CDN in prod).</p>
+
+<p>Bakehouse uses Spring's <code>@Configuration @Profile</code>'s to allow you to specify different deployment configs at runtime.</p>
+
+<p>For example:</p>
+
+<pre><code>&lt;%@ taglib prefix="bakehouse" uri="http://www.mangofactory.com/bakehouse" %&gt;
+&lt;head&gt;
+    &lt;bakehouse:resource src="angular.js" cdn="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"/&gt;
+    &lt;bakehouse:resources configuration="javascript" type="text/javascript"&gt;
+        &lt;bakehouse:resource src="file1.js"/&gt;
+        &lt;bakehouse:resource src="file2.js"/&gt;
+    &lt;/bakehouse:resources&gt;
+    &lt;bakehouse:resources configuration="typescript" type="text/javascript"&gt;
+        &lt;bakehouse:resource src="typescript.ts"/&gt;
+    &lt;/bakehouse:resources&gt;
+&lt;/head&gt;
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>With our resources wrapped in <code>&lt;bakehouse:... /&gt;</code> tags, we can define multiple configurations depending on the environment we're running in.</p>
 
-<h3>Designer Templates</h3>
+<p>For example -- in production:</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<pre><code>@Configuration
+@Profile("production")
+public class ExampleBakehouseConfig implements BakehouseConfigProvider {
 
-<h3>Rather Drive Stick?</h3>
+    @Override @Bean
+    public BakehouseConfig build(BakehouseConfigBuilder builder) {
+        return builder
+            .process("javascript").serveAsSingleFile("AppCode.js")
+            .process("typescript").with(new TypescriptProcessor("TypescriptCode.js"))
+            .serveResourcesFromCdn()
+            .build();
+    }
+}
+</code></pre>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>This specifies:</p>
 
-<h3>Authors and Contributors</h3>
+<ul>
+<li>Process the <code>javascript</code> group, concatenating into a single file, called <code>AppCode.js</code>
+</li>
+<li>Process the <code>typescript</code> group, compiling the typescript into a single file called <code>TypescriptCode.js</code>
+</li>
+<li>Download any resources with <code>cdn</code> addresses from their relative cdn's (eg., the <code>angularjs</code> resource)</li>
+</ul><p>Alternatively, in Dev ---</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<pre><code>@Configuration
+@Profile("development")
+public class ExampleBakehouseConfig implements BakehouseConfigProvider {
 
-<h3>Support or Contact</h3>
+    @Override @Bean
+    public BakehouseConfig build(BakehouseConfigBuilder builder) {
+        return builder
+            .process("typescript").with(new TypescriptProcessor("TypescriptCode.js"))
+            .build();
+    }
+}
+</code></pre>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
+<p>Here:</p>
 
-        <aside id="sidebar">
-          <a href="https://github.com/martypitt/bakehouse/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/martypitt/bakehouse/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+<ul>
+<li>
+<code>javascript</code> resources aren't processed, so will be served 'as-is`</li>
+<li>Process the <code>typescript</code> group, compiling the typescript into a single file called <code>TypescriptCode.js</code>
+</li>
+<li>CDN resources are ignored, so we'll be serving the local non-minified versions.</li>
+</ul><h3>Project state</h3>
 
-          <p class="repo-owner"><a href="https://github.com/martypitt/bakehouse"></a> is maintained by <a href="https://github.com/martypitt">martypitt</a>.</p>
+<p>This is a POC project.  You're welcome to grab the code and play around with it (the above examples all work), but I'm not committed to actively working on the project unless there's demand.</p>
 
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+<p>Register your interest in seeing this get expanded by either <a href="https://github.com/martypitt/bakehouse">starring the project</a> or <a href="https://github.com/martypitt/bakehouse/issues/4">leave a comment showing you're interested</a>.</p>
+
+<p>Alternatively, have a play, raise some issues, and submit some pull requests with enhancements.</p>
+      </section>
     </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/martypitt">martypitt</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37456009-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
 
-  
   </body>
 </html>
