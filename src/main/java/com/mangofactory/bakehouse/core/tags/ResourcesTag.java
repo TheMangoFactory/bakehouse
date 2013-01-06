@@ -22,8 +22,7 @@ import com.mangofactory.bakehouse.core.ResourceCache;
 @Slf4j @Component
 public class ResourcesTag extends TagSupport {
 
-	@Autowired
-	ResourceCache resourceCache;
+	ResourceCache _resourceCache;
 	
 	@Getter @Setter 
 	private String configuration;
@@ -31,26 +30,33 @@ public class ResourcesTag extends TagSupport {
 	@Getter @Setter
 	private String type;
 	
-	private Set<ResourceTag> children = Sets.newHashSet();
-	
 	private Set<String> childrenResources = Sets.newHashSet();
 	@Override
 	public int doStartTag() throws JspException {
+		// Reset local variables, as tags can be pooled
+		// Instance variables can only be trusted between doStartTag() and doEndTag();
+		childrenResources = Sets.newHashSet();
 		return EVAL_BODY_INCLUDE;
 	}
 	@Override @SneakyThrows
 	public int doEndTag() throws JspException {
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(pageContext.getServletContext());
-		resourceCache = applicationContext.getBean(ResourceCache.class);
+		ResourceCache resourceCache = getResourceCache();
 		
 		Resource resource = resourceCache.getResourceGroup(configuration,type,childrenResources);
 		pageContext.getOut().write(resource.getHtml());
 		return super.doEndTag();
 	}
 
+	private ResourceCache getResourceCache() {
+		if (_resourceCache == null)
+		{
+			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(pageContext.getServletContext());
+			_resourceCache = applicationContext.getBean(ResourceCache.class);
+		}
+		return _resourceCache;
+	}
 	public void addChild(ResourceTag child)
 	{
-		children.add(child);
 		String realPath = pageContext.getServletContext().getRealPath(child.getSrc());
 		childrenResources.add(realPath);
 	}

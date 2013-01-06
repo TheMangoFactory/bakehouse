@@ -14,7 +14,7 @@
 		</description>
 		<name>resources</name>
 		<tag-class>com.mangofactory.bakehouse.core.tags.ResourcesTag</tag-class>
-		<body-content>JSP</body-content>
+		<body-content>scriptless</body-content>
 		<attribute>
 			<description>Defines a configurtion to process the enclosing set of resources</description>
 			<name>configuration</name>

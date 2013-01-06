@@ -20,11 +20,11 @@ import com.mangofactory.bakehouse.core.DefaultResource;
 
 public class TypescriptProcessTests extends AbstractFileManipulationTests {
 
-	TypescriptProcess process;
+	TypescriptCompiler process;
 	@Before
 	public void setup()
 	{
-		process = new TypescriptProcess("/usr/local/bin/tsc");
+		process = new TypescriptCompiler("/usr/local/bin/tsc");
 	}
 	@Test @SneakyThrows
 	public void compilesTypescript()

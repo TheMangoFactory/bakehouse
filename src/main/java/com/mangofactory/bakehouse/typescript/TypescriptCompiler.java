@@ -30,8 +30,8 @@ import com.mangofactory.bakehouse.core.exec.LogCollectingOutputStream;
  * @author martypitt
  *
  */
-@Component @Slf4j
-public class TypescriptProcess {
+@Slf4j
+public class TypescriptCompiler {
 
 	private static final Map<String,String> DEFAULT_UNIX_ENV;
 	static {
@@ -41,7 +41,10 @@ public class TypescriptProcess {
 	private final String pathToTsc;
 	@Setter
 	private Map<String,String> environment;
-	public TypescriptProcess(String pathToTsc)
+	public TypescriptCompiler() {
+		pathToTsc = getDefaultTscPath();
+	}
+	public TypescriptCompiler(String pathToTsc)
 	{
 		this.pathToTsc = pathToTsc;
 		
@@ -78,6 +81,18 @@ public class TypescriptProcess {
 			log.warn("Compiling typescript failed: {} ", outputReader.toString());
 		}
 		return new ProcessCompilationResult(executor, exitCode, outputReader, compiledResource);
+	}
+	private String getDefaultTscPath()
+	{
+		if (SystemUtils.IS_OS_UNIX)
+		{
+			return "/usr/local/bin/tsc";
+		}
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			throw new NotImplementedException("Need reasonable defaults for a path for a windows OS... can you provide one?");
+		}
+		throw new IllegalStateException("No environment defined, and no suitalbe default could be found");
 	}
 	private Map<String, String> getEnvironment() {
 		if (environment != null)
