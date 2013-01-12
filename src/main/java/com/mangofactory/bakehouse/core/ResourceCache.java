@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.io.FileManager;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 @Slf4j
 public class ResourceCache {
@@ -42,6 +43,17 @@ public class ResourceCache {
 		fileMonitor.start();
 		this.fileSystemManager = fileSystemManager;
 	}
+	public void setConfiguration(String configurationName, List<ResourceProcessor> processors)
+	{
+		if (configurationMap.containsKey(configurationName))
+			configurationMap.remove(configurationName);
+		addConfiguration(configurationName, processors);
+	}
+	public void setConfiguration(String configurationName, ResourceProcessor... processors)
+	{
+		List<ResourceProcessor> processorList = Lists.newArrayList(processors);
+		setConfiguration(configurationName, processorList);
+	}
 	public void addConfiguration(String configurationName, ResourceProcessor... processors)
 	{
 		List<ResourceProcessor> processorList = Lists.newArrayList(processors);
@@ -56,7 +68,7 @@ public class ResourceCache {
 			configurationMap.put(configurationName, processorList);
 		}
 	}
-	public Resource getResourceGroup(String configuration, String type, Iterable<String> resourcePaths)
+	public Resource getResourceGroup(String configuration, String type, List<FilePath> resourcePaths)
 	{
 		if (cache.containsKey(configuration))
 		{
@@ -80,25 +92,29 @@ public class ResourceCache {
 		} else {
 			log.warn("No matching configuration defined for '{}'. Using default resource",configuration);
 		}
+		
+		List<FilePath> servletRelativePaths = fileManager.makeServletRelative(resource.getResourcePaths());
+		resource = resource.setResourcePaths(servletRelativePaths);
+		
 		log.info("Caching resource '{}'", configuration);
 		cache(request,resource);
 		watchPaths(request.getResourcePaths(),configuration);
 		return resource;
 	}
 	@SneakyThrows
-	private void watchPaths(Iterable<String> resourcePaths, String configuration) {
+	private void watchPaths(List<FilePath> resourcePaths, String configuration) {
 		fileListener.addFiles(configuration, resourcePaths);
-		for (String resourcePath : resourcePaths) {
-			FileObject fileObject = fileSystemManager.resolveFile(resourcePath);
+		for (FilePath resourcePath : resourcePaths) {
+			FileObject fileObject = fileSystemManager.resolveFile(resourcePath.getPath());
 			fileMonitor.addFile(fileObject);
-			log.info("Now watching {} for changes",resourcePath);
+			log.info("Now watching {} for changes",resourcePath.getPath());
 		}
 	}
 	private void cache(BuildResourceRequest request, Resource resource) {
 		CachedResource cachedResource = new CachedResource(resource.getResourceType(), resource, request);
 		cache.put(request.getConfiguration(), cachedResource);
 	}
-	private Resource getDefaultResource(Iterable<String> resourcePaths, String resourceType) {
+	private Resource getDefaultResource(List<FilePath> resourcePaths, String resourceType) {
 		DefaultResource resource = DefaultResource.fromPaths(resourcePaths,resourceType);
 		return resource;
 	}
@@ -118,7 +134,7 @@ public class ResourceCache {
 	class BuildResourceRequest {
 		private final String configuration;
 		private final String type;
-		private final Iterable<String> resourcePaths;
+		private final List<FilePath> resourcePaths;
 	}
 	@Data
 	class CachedResource {
@@ -130,16 +146,16 @@ public class ResourceCache {
 	class CacheInvalidatingFileListener implements FileListener
 	{
 		private final ResourceCache cache;
-		private final Map<String, String> filesToConfiguration;
+		private final Map<FilePath, String> filesToConfiguration;
 		
 		public CacheInvalidatingFileListener(ResourceCache cache)
 		{
 			this.cache = cache;
 			filesToConfiguration = Maps.newHashMap();
 		}
-		public void addFiles(String configuration, Iterable<String> files)
+		public void addFiles(String configuration, List<FilePath> files)
 		{
-			for (String filePath : files) {
+			for (FilePath filePath : files) {
 				filesToConfiguration.put(filePath, configuration);
 			}
 		}

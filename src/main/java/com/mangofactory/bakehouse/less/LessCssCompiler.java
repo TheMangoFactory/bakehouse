@@ -13,7 +13,9 @@ import org.apache.commons.lang.SystemUtils;
 import com.mangofactory.bakehouse.core.CssResource;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.compilers.AbstractCompiler;
+import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 import com.mangofactory.bakehouse.core.exec.LogCollectingOutputStream;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public class LessCssCompiler extends AbstractCompiler {
 
@@ -25,18 +27,22 @@ public class LessCssCompiler extends AbstractCompiler {
 	public LessCssCompiler(String pathToLessC)
 	{
 		this.pathToLessC = pathToLessC;
-
 	}
+	
 	@Override
 	protected CommandLine getCompileCommand(Resource resource, File targetFile)
 			throws IOException {
-		if (resource.getFiles().size() != 1)
+		if (resource.getResourcePaths().size() != 1)
 		{
-			throw new IllegalStateException("LessCSS Compiler only supports a single input file.  Concatenate the resources toegether first, by chaining a ConcatenateResourceProcessor before this one");
+			throw new IllegalStateException("LessCSS Compiler only supports a single input file.  Concatenate the resources together first, by chaining a ConcatenateResourceProcessor before this one");
 		}
-		File inputFile = resource.getFiles().get(0);
+		FilePath inputFile = resource.getResourcePaths().get(0);
+		if (inputFile.isSerlvetRelative())
+		{
+			throw new IllegalStateException("Cannot compile a servlet relative path.  Convert to an absolute FilePath first using the FileManager");
+		}
 		CommandLine commandLine = new CommandLine(pathToLessC);
-		commandLine.addArgument(inputFile.getCanonicalPath());
+		commandLine.addArgument(inputFile.getPath());
 		return commandLine;
 	}
 
@@ -44,7 +50,7 @@ public class LessCssCompiler extends AbstractCompiler {
 	protected Resource generateSuccessfulResource(
 			LogCollectingOutputStream outputReader, File targetFile) {
 		FileUtils.write(targetFile, outputReader.toString());
-		return new CssResource(targetFile.getPath());
+		return new CssResource(FilePath.fromFile(targetFile));
 	}
 	@Override
 	protected String getDescription() {

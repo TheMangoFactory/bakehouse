@@ -32,7 +32,7 @@ public class TypescriptCompilerTests extends AbstractFileManipulationTests {
 		File tempFile = getNewTempFile("js");
 		CompilationResult compilationResult = process.compile(resource, tempFile);
 		assertTrue("Compilation failed: " + compilationResult.getMessages(), compilationResult.isSuccessful());
-		assertThat(compilationResult.getCompiledResource().getFiles().size(), equalTo(1));
+		assertThat(compilationResult.getCompiledResource().getResourcePaths().size(), equalTo(1));
 		
 		assertTrue(tempFile.exists());
 		

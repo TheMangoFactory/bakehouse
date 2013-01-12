@@ -3,6 +3,8 @@ package com.mangofactory.bakehouse.core;
 import java.io.File;
 import java.util.List;
 
+import com.mangofactory.bakehouse.core.io.FilePath;
+
 public class CompilationFailedResource implements Resource {
 
 	private final Resource originalResource;
@@ -24,9 +26,12 @@ public class CompilationFailedResource implements Resource {
 		.append("-->");
 		return sb.toString();
 	}
-
-	public List<File> getFiles() {
-		return originalResource.getFiles();
+	public List<FilePath> getResourcePaths() {
+		return originalResource.getResourcePaths();
+	}
+	public Resource setResourcePaths(List<FilePath> paths) {
+		// No-op
+		return this;
 	}
 
 }

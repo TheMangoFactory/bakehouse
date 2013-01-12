@@ -1,15 +1,23 @@
 package com.mangofactory.bakehouse.core;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
+
+import lombok.Getter;
+
+import com.google.common.collect.Lists;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public class CssResource implements Resource {
 
-	private final String resourcePath;
-	public CssResource(String resourcePath)
+	@Getter
+	private final List<FilePath> resourcePaths;
+	public CssResource(FilePath resourcePath)
 	{
-		this.resourcePath = resourcePath;
+		this.resourcePaths = Lists.newArrayList(resourcePath);
+	}
+	public CssResource(List<FilePath> resourcePaths)
+	{
+		this.resourcePaths = resourcePaths;
 	}
 	public String getResourceType() {
 		return "text/css";
@@ -17,14 +25,16 @@ public class CssResource implements Resource {
 
 	public String getHtml() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<link rel='stylesheet' type='text/css' href='")
-			.append(resourcePath)
+		
+		for (FilePath filePath : resourcePaths)
+		{
+			sb.append("<link rel='stylesheet' type='text/css' href='")
+			.append(filePath.getPath())
 			.append("'></link>\n");
+		}
 		return sb.toString();
 	}
-
-	public List<File> getFiles() {
-		return Arrays.asList(new File(resourcePath));
+	public Resource setResourcePaths(List<FilePath> paths) {
+		return new CssResource(paths);
 	}
-
 }

@@ -1,5 +1,7 @@
 package com.mangofactory.bakehouse.config;
 
+import java.util.List;
+
 import com.mangofactory.bakehouse.core.ResourceCache;
 import com.mangofactory.bakehouse.core.ResourceProcessor;
 import com.mangofactory.bakehouse.core.io.FileManager;
@@ -17,10 +19,18 @@ public class BakehouseConfigBuilder {
 				this.fileManager = fileManager;
 	}
 
+	public BakehouseConfigBuilder newBuilder()
+	{
+		return new BakehouseConfigBuilder(resourceCache, fileManager);
+	}
 	public ProcessorConfigBuilder process(String configurationName) {
 		return new ProcessorConfigBuilder(configurationName,this);
 	}
 
+	void setProcessors(String configurationName, List<ResourceProcessor> processors)
+	{
+		resourceCache.setConfiguration(configurationName, processors);
+	}
 	void addProcessor(String configurationName,
 			ResourceProcessor processor) {
 		resourceCache.addConfiguration(configurationName, processor);

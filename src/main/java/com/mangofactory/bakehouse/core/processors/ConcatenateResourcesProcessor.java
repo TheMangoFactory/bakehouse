@@ -7,14 +7,14 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.ResourceProcessor;
 import com.mangofactory.bakehouse.core.io.FileManager;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public class ConcatenateResourcesProcessor implements ResourceProcessor {
 
@@ -31,19 +31,19 @@ public class ConcatenateResourcesProcessor implements ResourceProcessor {
 	@SneakyThrows
 	public Resource process(Resource resource) {
 		StringBuilder sb = new StringBuilder();
-		for (File file : resource.getFiles())
+		for (FilePath filePath : resource.getResourcePaths())
 		{
 			if (sb.length() > 0)
 			{
 				sb.append("\n");
 			}
-			sb.append(FileUtils.readFileToString(file));
+			filePath = fileRepository.makeAbsolute(filePath);
+			sb.append(FileUtils.readFileToString(filePath.getFile()));
 		}
 		File newFile = fileRepository.getNewFile(targetFilename);
 		FileUtils.write(newFile, sb.toString());
 		
-		String path = fileRepository.getServletPath(newFile);
-		return DefaultResource.fromPaths(resource.getResourceType(),path);
+		return resource.setResourcePaths(Lists.newArrayList(FilePath.fromFile(newFile)));
 	}
 
 

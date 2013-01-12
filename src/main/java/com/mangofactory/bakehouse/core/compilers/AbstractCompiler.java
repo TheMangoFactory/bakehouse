@@ -85,7 +85,7 @@ public abstract class AbstractCompiler implements Compiler {
 		if (exitCode == 0)
 		{
 			log.info("Compiling {}: {}",getDescription(), outputReader.toString());
-			log.info("Compiled {} files to {} successfully", resource.getFiles().size(), targetFile.getPath());
+			log.info("Compiled {} files to {} successfully", resource.getResourcePaths().size(), targetFile.getPath());
 			
 			compiledResource = generateSuccessfulResource(outputReader,targetFile);
 		} else {

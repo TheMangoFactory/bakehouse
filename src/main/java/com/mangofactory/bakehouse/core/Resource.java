@@ -1,11 +1,14 @@
 package com.mangofactory.bakehouse.core;
 
-import java.io.File;
 import java.util.List;
+
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public interface Resource {
 
 	String getResourceType();
 	String getHtml();
-	List<File> getFiles();
+	List<FilePath> getResourcePaths();
+	
+	Resource setResourcePaths(List<FilePath> paths);
 }

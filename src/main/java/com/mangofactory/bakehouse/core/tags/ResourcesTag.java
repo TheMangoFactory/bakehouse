@@ -7,11 +7,12 @@ import javax.servlet.jsp.JspException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.ResourceCache;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public class ResourcesTag extends SpringAwareTagSupport {
 
@@ -23,7 +24,7 @@ public class ResourcesTag extends SpringAwareTagSupport {
 	@Getter @Setter
 	private String type;
 	
-	private Set<String> childrenResources = Sets.newHashSet();
+	private Set<FilePath> childrenResources = Sets.newHashSet();
 	@Override
 	public int doStartTag() throws JspException {
 		// Reset local variables, as tags can be pooled
@@ -35,7 +36,7 @@ public class ResourcesTag extends SpringAwareTagSupport {
 	public int doEndTag() throws JspException {
 		ResourceCache resourceCache = getResourceCache();
 		
-		Resource resource = resourceCache.getResourceGroup(configuration,type,childrenResources);
+		Resource resource = resourceCache.getResourceGroup(configuration,type,Lists.newArrayList(childrenResources));
 		pageContext.getOut().write(resource.getHtml());
 		return super.doEndTag();
 	}
@@ -50,7 +51,7 @@ public class ResourcesTag extends SpringAwareTagSupport {
 	public void addChild(ResourceTag child)
 	{
 		String realPath = pageContext.getServletContext().getRealPath(child.getSrc());
-		childrenResources.add(realPath);
+		childrenResources.add(FilePath.forAbsolutePath(realPath));
 	}
 
 }

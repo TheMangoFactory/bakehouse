@@ -1,6 +1,7 @@
 package com.mangofactory.bakehouse.core.io;
 
 import java.io.File;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -13,6 +14,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
+
+import com.google.common.collect.Lists;
 
 @Slf4j
 public class FileManager implements ApplicationContextAware {
@@ -28,12 +31,47 @@ public class FileManager implements ApplicationContextAware {
 	{
 		this.targetDir = targetDir;
 	}
+	
+	/**
+	 * Returns an absolute FilePath from FilePath.
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public FilePath makeAbsolute(FilePath filePath)
+	{
+		if (filePath.isSerlvetRelative())
+		{
+			String absolutePath = wac.getServletContext().getRealPath(filePath.getPath());
+			return FilePath.forAbsolutePath(absolutePath);
+		} else {
+			return filePath;
+		}
+	}
 
+	public FilePath makeServletRelative(FilePath filePath)
+	{
+		if (filePath.isSerlvetRelative())
+		{
+			return filePath;
+		} else {
+			if (wac == null)
+			{
+				throw new IllegalStateException("Cannot resolve serlvet path, as no WebApplicationContext was found - are you sure you're running within a servlet?");
+			}
+			ServletContext servletContext = wac.getServletContext();
+			String servletBasePath = servletContext.getRealPath("/");
+			String path = new File(servletBasePath).toURI().relativize(filePath.getUri()).getPath();
+			path = makeContextRelative(path,servletContext);
+			return FilePath.forServletPath(path);
+		}
+	}
+	
 	/**
 	 * Returns a file that is named derived
 	 * from fileName, but is guaranteed not to yet
 	 * exist.
-	 * @param fileName
+	 * @param filePath
 	 * @return
 	 */
 	@SneakyThrows
@@ -58,6 +96,19 @@ public class FileManager implements ApplicationContextAware {
 		}
 		return file;
 	}
+	/**
+	 * Returns a file that is named derived
+	 * from fileName, but is guaranteed not to yet
+	 * exist.
+	 * @param filePath
+	 * @return
+	 */
+	@SneakyThrows
+	public File getNewFile(FilePath filePath)
+	{
+		String fileName = filePath.getFileName();
+		return getNewFile(fileName);
+	}
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		if (applicationContext instanceof WebApplicationContext)
@@ -69,17 +120,6 @@ public class FileManager implements ApplicationContextAware {
 		}
 	}
 	
-	public String getServletPath(File file)
-	{
-		if (wac == null)
-		{
-			throw new IllegalStateException("Cannot resolve serlvet path, as no WebApplicationContext was found - are you sure you're running within a servlet?");
-		}
-		ServletContext servletContext = wac.getServletContext();
-		String servletBasePath = servletContext.getRealPath("/");
-		String path = new File(servletBasePath).toURI().relativize(file.toURI()).getPath();
-		return makeContextRelative(path,servletContext);
-	}
 	private String makeContextRelative(String path, ServletContext servletContext) {
 		String contextPath = servletContext.getContextPath();
 		if (contextPath.length() == 0)
@@ -91,5 +131,13 @@ public class FileManager implements ApplicationContextAware {
 			contextPath += "/";
 		}
 		return contextPath + path;
+	}
+	public List<FilePath> makeServletRelative(List<FilePath> resourcePaths) {
+		List<FilePath> result = Lists.newArrayList();
+		for (FilePath filePath : resourcePaths)
+		{
+			result.add(makeServletRelative(filePath));
+		}
+		return result;
 	}
 }

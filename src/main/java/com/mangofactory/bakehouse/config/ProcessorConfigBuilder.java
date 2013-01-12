@@ -1,5 +1,8 @@
 package com.mangofactory.bakehouse.config;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.mangofactory.bakehouse.core.ResourceProcessor;
 import com.mangofactory.bakehouse.core.processors.ConcatenateResourcesProcessor;
 
@@ -14,9 +17,10 @@ public class ProcessorConfigBuilder {
 		this.builder = bakehouseConfigBuilder;
 	}
 
-	public BakehouseConfigBuilder with(ResourceProcessor processor)
+	public BakehouseConfigBuilder with(ResourceProcessor... processors)
 	{
-		builder.addProcessor(configurationName,processor);
+		List<ResourceProcessor> processorList = Lists.newArrayList(processors);
+		builder.setProcessors(configurationName, processorList);
 		return builder;
 	}
 	// Convenience methods

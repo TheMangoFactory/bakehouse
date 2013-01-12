@@ -16,6 +16,7 @@ import com.mangofactory.bakehouse.core.AbstractFileManipulationTests;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.io.FileManager;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 public class ConcatenateResourcesProcessorTests extends AbstractFileManipulationTests {
 
@@ -39,10 +40,11 @@ public class ConcatenateResourcesProcessorTests extends AbstractFileManipulation
 		
 		Resource processedResource = processor.process(resource);
 		
-		assertThat(processedResource.getFiles(), hasSize(1));
-		File file = processedResource.getFiles().get(0);
-		assertThat(file.getName(),equalTo("AppCode.js"));
-		String fileContents = FileUtils.readFileToString(file);
+		assertThat(processedResource.getResourcePaths(), hasSize(1));
+		FilePath filePath = processedResource.getResourcePaths().get(0);
+		assertThat(filePath.getFileName(),equalTo("AppCode.js"));
+		
+		String fileContents = FileUtils.readFileToString(filePath.getFile());
 		assertThat(fileContents,equalTo("// Hello from Test File 1\n// Hello from Test File 2"));
 	}
 	
@@ -56,7 +58,7 @@ public class ConcatenateResourcesProcessorTests extends AbstractFileManipulation
 		
 		Resource processedResource = processor.process(resource);
 
-		String fileName = processedResource.getFiles().get(0).getPath();
+		String fileName = processedResource.getResourcePaths().get(0).getPath();
 		
 		String expected = "<script src='" + fileName + "' type='text/javascript'></script>\n";
 		assertThat(processedResource.getHtml(),equalTo(expected));

@@ -11,6 +11,7 @@ import org.apache.commons.lang.SystemUtils;
 
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.compilers.AbstractCompiler;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 /**
  * Encapsulates calling out to the typescript
@@ -39,9 +40,13 @@ public class TypescriptCompiler extends AbstractCompiler {
 		CommandLine commandLine = new CommandLine(pathToTsc);
 		commandLine.addArgument("--out");
 		commandLine.addArgument(targetFile.getCanonicalPath());
-		for (File file : resource.getFiles())
+		for (FilePath filePath : resource.getResourcePaths())
 		{
-			commandLine.addArgument(file.getCanonicalPath());
+			if (filePath.isSerlvetRelative())
+			{
+				throw new IllegalArgumentException("Cannot compile a servlet relative resouce.  Convert to an absolute filepath first using the FileManager");
+			}
+			commandLine.addArgument(filePath.getPath());
 		}
 		return commandLine;
 	}
