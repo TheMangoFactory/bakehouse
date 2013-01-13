@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.google.common.collect.Lists;
 
 @RequiredArgsConstructor
+@EqualsAndHashCode
 public class FilePath {
 	
 	@Getter
