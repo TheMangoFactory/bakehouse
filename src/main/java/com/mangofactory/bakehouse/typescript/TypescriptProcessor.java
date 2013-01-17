@@ -7,9 +7,9 @@ public class TypescriptProcessor extends AbstractCompilingProcessor implements R
 
 	public TypescriptProcessor(String targetFilename)
 	{
-		this(targetFilename,new TypescriptCompiler());
+		this(targetFilename,new TypescriptCompilerAdapter());
 	}
-	public TypescriptProcessor(String targetFilename, TypescriptCompiler compiler)
+	public TypescriptProcessor(String targetFilename, TypescriptCompilerAdapter compiler)
 	{
 		super(targetFilename,compiler);
 	}

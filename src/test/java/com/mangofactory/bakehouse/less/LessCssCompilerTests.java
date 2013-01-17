@@ -11,20 +11,21 @@ import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.lesscss.LessCompiler;
 
 import com.mangofactory.bakehouse.core.AbstractFileManipulationTests;
 import com.mangofactory.bakehouse.core.DefaultResource;
-import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.compilers.CompilationResult;
-import com.mangofactory.bakehouse.core.io.FilePath;
+import com.mangofactory.bakehouse.core.compilers.Compiler;
 
 public class LessCssCompilerTests extends AbstractFileManipulationTests {
 
-	LessCssCompiler compiler;
+	Compiler compiler;
+	
 	@Before
 	public void setup()
 	{
-		compiler = new LessCssCompiler();
+		compiler = new LessCompilerAdapter(new LessCompiler());
 	}
 	@Test @SneakyThrows
 	public void compilesSingleFile()
@@ -45,7 +46,15 @@ public class LessCssCompilerTests extends AbstractFileManipulationTests {
 		
 		assertThat(generatedCss, equalTo(expectedCss));
 	}
-	
+
+	@Test @SneakyThrows
+	public void compilesBootstrapCss()
+	{
+		DefaultResource resource = DefaultResource.fromFiles("text/css",testResource("less/bootstrap-main.less"));
+		File tempFile = getNewTempFile("css");
+		CompilationResult compilationResult = compiler.compile(resource, tempFile);
+		assertTrue("Compilation failed: " + compilationResult.getMessages(), compilationResult.isSuccessful());
+	}
 	
 	
 }

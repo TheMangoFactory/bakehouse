@@ -2,6 +2,8 @@ package com.mangofactory.bakehouse.less;
 
 import java.util.List;
 
+import org.lesscss.LessCompiler;
+
 import com.google.common.collect.Lists;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.io.FilePath;
@@ -11,11 +13,11 @@ public class LessCssProcessor extends AbstractCompilingProcessor {
 
 	public LessCssProcessor(String targetFilename)
 	{
-		this(targetFilename, new LessCssCompiler());
+		this(targetFilename, new LessCompiler());
 	}
-	public LessCssProcessor(String targetFilename, LessCssCompiler compiler)
+	public LessCssProcessor(String targetFilename, LessCompiler compiler)
 	{
-		super(targetFilename,compiler);
+		super(targetFilename,new LessCompilerAdapter(compiler));
 	}
 	
 	@Override

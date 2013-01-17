@@ -18,11 +18,11 @@ import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 
 public class TypescriptCompilerTests extends AbstractFileManipulationTests {
 
-	TypescriptCompiler process;
+	TypescriptCompilerAdapter compiler;
 	@Before
 	public void setup()
 	{
-		process = new TypescriptCompiler("/usr/local/bin/tsc");
+		compiler = new TypescriptCompilerAdapter();
 	}
 	@Test @SneakyThrows
 	public void compilesTypescript()
@@ -30,7 +30,7 @@ public class TypescriptCompilerTests extends AbstractFileManipulationTests {
 		
 		DefaultResource resource = DefaultResource.fromFiles("text/javascript",testResource("typescript.ts"));
 		File tempFile = getNewTempFile("js");
-		CompilationResult compilationResult = process.compile(resource, tempFile);
+		CompilationResult compilationResult = compiler.compile(resource, tempFile);
 		assertTrue("Compilation failed: " + compilationResult.getMessages(), compilationResult.isSuccessful());
 		assertThat(compilationResult.getCompiledResource().getResourcePaths().size(), equalTo(1));
 		

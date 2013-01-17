@@ -2,6 +2,7 @@ package com.mangofactory.bakehouse.core.compilers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Setter;
@@ -21,6 +22,7 @@ import com.mangofactory.bakehouse.core.CompilationFailedResource;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.exec.LogCollectingOutputStream;
+import com.mangofactory.bakehouse.core.io.FilePath;
 
 @Slf4j
 public abstract class AbstractCompiler implements Compiler {
@@ -65,9 +67,37 @@ public abstract class AbstractCompiler implements Compiler {
 		throw new IllegalStateException("No environment defined, and no suitalbe default could be found");
 	}
 
+	/**
+	 * Defines a fallback resource, if it is detected that
+	 * compilation cannot continue.
+	 * 
+	 * If a value is returned, this is used, and compilation
+	 * is not attempted.
+	 * 
+	 * Returns null to indicate that compilation should continue.
+	 * 
+	 * This is used in environments where compilation cannot continue,
+	 * but a reasonable default is available.
+	 * 
+	 * For example - a production server, where NodeJS is not available
+	 * so a node-based compilation cannot continue.  However, a reasonable
+	 * default is made available at build-time.
+	 * 
+	 * @return
+	 */
+	protected List<FilePath> getFallbackFilePaths(Resource resource) {
+		return null;
+	}
+	
 	@SneakyThrows
 	public CompilationResult compile(Resource resource, File targetFile)
 	{
+		if (getFallbackFilePaths(resource) != null)
+		{
+			log.info("Not compiling {} - using fallback instead",resource.toString());
+			CompilationResult compilationResult = DefaultCompilationResult.successfulResult(DefaultResource.fromPaths(getFallbackFilePaths(resource),getResourceType()));
+			return compilationResult;
+		}
 		CommandLine commandLine = getCompileCommand(resource, targetFile);
 		Executor executor = new DefaultExecutor();
 		
