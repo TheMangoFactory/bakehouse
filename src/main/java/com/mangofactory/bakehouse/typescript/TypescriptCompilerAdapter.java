@@ -11,6 +11,7 @@ import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 import com.mangofactory.bakehouse.core.compilers.Compiler;
 import com.mangofactory.bakehouse.core.compilers.DefaultCompilationResult;
 import com.mangofactory.bakehouse.core.io.FileUtils;
+import com.mangofactory.typescript.EcmaScriptVersion;
 import com.mangofactory.typescript.TypescriptCompiler;
 
 /**
@@ -31,6 +32,15 @@ public class TypescriptCompilerAdapter implements Compiler {
 	public TypescriptCompilerAdapter(TypescriptCompiler compiler)
 	{
 		this.compiler = compiler;
+	}
+	
+	public EcmaScriptVersion getEcmaScriptVersion()
+	{
+		return compiler.getEcmaScriptVersion();
+	}
+	public void setEcmaScriptVersion(EcmaScriptVersion version)
+	{
+		compiler.setEcmaScriptVersion(version);
 	}
 	@SneakyThrows
 	public CompilationResult compile(Resource resource, File targetFile) {

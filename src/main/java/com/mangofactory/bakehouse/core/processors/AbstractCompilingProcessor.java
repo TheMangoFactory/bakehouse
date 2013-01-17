@@ -1,5 +1,8 @@
 package com.mangofactory.bakehouse.core.processors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.ResourceProcessor;
@@ -7,14 +10,15 @@ import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 import com.mangofactory.bakehouse.core.compilers.Compiler;
 import com.mangofactory.bakehouse.core.io.FileManager;
 
-public abstract class AbstractCompilingProcessor implements ResourceProcessor{
+public abstract class AbstractCompilingProcessor<T extends Compiler> implements ResourceProcessor{
 
-	private final Compiler compiler;
+	@Getter(value=AccessLevel.PROTECTED)
+	private final T compiler;
 	private final String targetFileName;
 	
 	private FileManager fileManager;
 
-	public AbstractCompilingProcessor(String targetFileName, Compiler compiler)
+	public AbstractCompilingProcessor(String targetFileName, T compiler)
 	{
 		this.targetFileName = targetFileName;
 		this.compiler = compiler;

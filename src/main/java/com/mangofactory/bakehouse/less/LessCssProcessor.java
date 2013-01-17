@@ -9,7 +9,7 @@ import com.mangofactory.bakehouse.core.Resource;
 import com.mangofactory.bakehouse.core.io.FilePath;
 import com.mangofactory.bakehouse.core.processors.AbstractCompilingProcessor;
 
-public class LessCssProcessor extends AbstractCompilingProcessor {
+public class LessCssProcessor extends AbstractCompilingProcessor<LessCompilerAdapter> {
 
 	public LessCssProcessor(String targetFilename)
 	{
