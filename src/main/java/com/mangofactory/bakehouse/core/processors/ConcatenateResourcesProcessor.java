@@ -1,6 +1,8 @@
 package com.mangofactory.bakehouse.core.processors;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -50,6 +52,12 @@ public class ConcatenateResourcesProcessor implements ResourceProcessor {
 
 	public void configure(BakehouseConfig config) {
 		this.fileRepository = config.getFileManager();
+	}
+
+
+
+	public List<FilePath> getAdditionalFilesToMonitor() {
+		return Collections.emptyList();
 	}
 
 }

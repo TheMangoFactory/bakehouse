@@ -82,12 +82,14 @@ public class ResourceCache {
 	private Resource buildResource(BuildResourceRequest request) {
 		String configuration = request.getConfiguration();
 		log.info("Building resource '{}'", configuration);
+		List<FilePath> filePathsToMonitor = Lists.newArrayList(request.getResourcePaths());
 		Resource resource = getDefaultResource(request.getResourcePaths(),request.getType());
 		if (configurationMap.containsKey(configuration))
 		{
 			List<ResourceProcessor> processors = configurationMap.get(configuration);
 			for (ResourceProcessor resourceProcessor : processors) {
 				resource = resourceProcessor.process(resource);
+				filePathsToMonitor.addAll(resourceProcessor.getAdditionalFilesToMonitor());
 			}
 		} else {
 			log.warn("No matching configuration defined for '{}'. Using default resource",configuration);
@@ -98,7 +100,7 @@ public class ResourceCache {
 		
 		log.info("Caching resource '{}'", configuration);
 		cache(request,resource);
-		watchPaths(request.getResourcePaths(),configuration);
+		watchPaths(filePathsToMonitor,configuration);
 		return resource;
 	}
 	@SneakyThrows
@@ -171,12 +173,14 @@ public class ResourceCache {
 			handleEvent(event); 			
 		}
 		private void handleEvent(FileChangeEvent event) {
-			String filePath = event.getFile().getName().getPath();
+			FilePath filePath = FilePath.forAbsolutePath(event.getFile().getName().getPath());
 			if (filesToConfiguration.containsKey(filePath))
 			{
 				String configuration = filesToConfiguration.get(filePath);
 				log.info("File '{}' changed - invalidating cache for configuration '{}'",event.getFile().getName().getBaseName(),configuration);
 				cache.invalidate(configuration);
+			} else {
+				log.error("File '{}' changed - but is not associated with any configuration - ignoring", event.getFile().getName().getBaseName());
 			}
 		}
 	}

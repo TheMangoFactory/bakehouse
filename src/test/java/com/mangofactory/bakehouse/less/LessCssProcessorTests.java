@@ -5,12 +5,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
+import java.util.List;
 
 import lombok.SneakyThrows;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -20,7 +19,6 @@ import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.AbstractFileManipulationTests;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
-import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 import com.mangofactory.bakehouse.core.io.FileManager;
 import com.mangofactory.bakehouse.core.io.FilePath;
 
@@ -55,6 +53,16 @@ public class LessCssProcessorTests extends AbstractFileManipulationTests {
 		}
 	}
 	
+	@Test @SneakyThrows
+	public void reportsAdditionalFilesToMonitorFromImports()
+	{
+		LessCssProcessor processor = getNewProcessor("stylesheet.css");
+		List<FilePath> imports = processor.scanForImports(FilePath.fromFile(testResource("import-test-a.less")));
+		assertTrue(imports.contains(FilePath.fromFile(testResource("import-test-b.less"))));
+		assertTrue(imports.contains(FilePath.fromFile(testResource("import-test-c.less"))));
+		assertTrue(imports.contains(FilePath.fromFile(testResource("stylesheet.less"))));
+	}
+	
 	private LessCssProcessor getNewProcessor(String targetFilename)
 	{
 		LessCssProcessor processor = new LessCssProcessor(targetFilename);
@@ -63,4 +71,5 @@ public class LessCssProcessorTests extends AbstractFileManipulationTests {
 		processor.configure(config);
 		return processor;
 	}
+	
 }

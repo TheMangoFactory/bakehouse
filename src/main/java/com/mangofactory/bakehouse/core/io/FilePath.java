@@ -7,13 +7,14 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.collect.Lists;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@ToString
 public class FilePath {
 	
 	@Getter
@@ -63,5 +64,35 @@ public class FilePath {
 			throw new IllegalStateException("Cannot generate a URI of a servlet relative filePath.  Transform to absolute using the FileManager");
 		}
 		return new File(path);
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result
+				+ ((serlvetRelative == null) ? 0 : serlvetRelative.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FilePath other = (FilePath) obj;
+		if (path == null) {
+			if (other.path != null)
+				return false;
+		} else if (!path.equals(other.path))
+			return false;
+		if (serlvetRelative == null) {
+			if (other.serlvetRelative != null)
+				return false;
+		} else if (!serlvetRelative.equals(other.serlvetRelative))
+			return false;
+		return true;
 	}
 }

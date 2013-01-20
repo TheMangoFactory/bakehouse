@@ -1,6 +1,10 @@
 package com.mangofactory.bakehouse.typescript;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.mangofactory.bakehouse.core.ResourceProcessor;
+import com.mangofactory.bakehouse.core.io.FilePath;
 import com.mangofactory.bakehouse.core.processors.AbstractCompilingProcessor;
 import com.mangofactory.typescript.EcmaScriptVersion;
 
@@ -19,5 +23,8 @@ public class TypescriptProcessor extends AbstractCompilingProcessor<TypescriptCo
 	public TypescriptProcessor(String targetFilename, TypescriptCompilerAdapter compiler)
 	{
 		super(targetFilename,compiler);
+	}
+	public List<FilePath> getAdditionalFilesToMonitor() {
+		return Collections.emptyList();
 	}
 }
