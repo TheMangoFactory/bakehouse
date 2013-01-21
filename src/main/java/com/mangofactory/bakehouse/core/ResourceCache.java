@@ -70,7 +70,20 @@ public class ResourceCache {
 	}
 	public Resource getResourceGroup(String configuration, String type, List<FilePath> resourcePaths)
 	{
+		boolean canUseCache = false;
+		
 		if (cache.containsKey(configuration))
+		{
+			 if (cache.get(configuration).hashEquals(resourcePaths.hashCode()))
+			 {
+				 canUseCache = true;
+			 } else {
+				 log.info("Cached version of '{}' doesn't match - rebuilding", configuration);
+				 canUseCache = false;
+			 }
+		}
+		
+		if (canUseCache)
 		{
 			log.info("Serving resource '{}' from cache",configuration);
 			return cache.get(configuration).getResource();
@@ -137,12 +150,21 @@ public class ResourceCache {
 		private final String configuration;
 		private final String type;
 		private final List<FilePath> resourcePaths;
+		
+		public int getResourceHash()
+		{
+			return resourcePaths.hashCode();
+		}
 	}
 	@Data
 	class CachedResource {
 		private final String type;
 		private final Resource resource;
 		private final BuildResourceRequest request;
+
+		public boolean hashEquals(int hashCode) {
+			return request.getResourceHash() == hashCode;
+		}
 	}
 	
 	class CacheInvalidatingFileListener implements FileListener
