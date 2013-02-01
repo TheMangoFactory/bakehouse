@@ -42,7 +42,7 @@ public class ResourcesTag extends SpringAwareTagSupport {
 	public int doEndTag() throws JspException {
 		ResourceCache resourceCache = getResourceCache();
 		
-		Resource resource = resourceCache.getResourceGroup(configuration,type,childrenResources);
+		Resource resource = resourceCache.getResourceGroup(pageContext.getPage(),configuration,type,childrenResources);
 		pageContext.getOut().write(resource.getHtml());
 		return super.doEndTag();
 	}

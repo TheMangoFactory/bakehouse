@@ -1,5 +1,8 @@
 package com.mangofactory.bakehouse.core;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +18,10 @@ import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileMonitor;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.io.FileManager;
 import com.mangofactory.bakehouse.core.io.FilePath;
@@ -25,7 +30,8 @@ import com.mangofactory.bakehouse.core.io.FilePath;
 public class ResourceCache {
 
 	private Map<String, List<ResourceProcessor>> configurationMap = Maps.newHashMap();
-	private Map<String, CachedResource> cache = Maps.newHashMap();
+	// Key: JSP Page, value:  the cache for that page.
+	private Map<Object, Map<String, CachedResource>> pageCache = Maps.newHashMap();
 	private CacheInvalidatingFileListener fileListener;
 	private DefaultFileMonitor fileMonitor;
 	private FileSystemManager fileSystemManager;
@@ -68,19 +74,23 @@ public class ResourceCache {
 			configurationMap.put(configurationName, processorList);
 		}
 	}
-	public Resource getResourceGroup(String configuration, String type, List<FilePath> resourcePaths)
+	public Resource getResourceGroup(Object page, String configuration, String type, List<FilePath> resourcePaths)
 	{
+		Map<String, CachedResource> cache = null;
 		boolean canUseCache = false;
-		
-		if (cache.containsKey(configuration))
+		if (pageCache.containsKey(page))
 		{
-			 if (cache.get(configuration).hashEquals(resourcePaths.hashCode()))
-			 {
-				 canUseCache = true;
-			 } else {
-				 log.info("Cached version of '{}' doesn't match - rebuilding", configuration);
-				 canUseCache = false;
-			 }
+			cache = pageCache.get(page);
+			if (cache.containsKey(configuration))
+			{
+				 if (cache.get(configuration).hashEquals(resourcePaths.hashCode()))
+				 {
+					 canUseCache = true;
+				 } else {
+					 log.info("Cached version of '{}' doesn't match - rebuilding", configuration);
+					 canUseCache = false;
+				 }
+			}
 		}
 		
 		if (canUseCache)
@@ -88,7 +98,7 @@ public class ResourceCache {
 			log.info("Serving resource '{}' from cache",configuration);
 			return cache.get(configuration).getResource();
 		} else {
-			BuildResourceRequest request = new BuildResourceRequest(configuration, type, resourcePaths);
+			BuildResourceRequest request = new BuildResourceRequest(page, configuration, type, resourcePaths);
 			return buildResource(request);
 		}
 	}
@@ -113,12 +123,12 @@ public class ResourceCache {
 		
 		log.info("Caching resource '{}'", configuration);
 		cache(request,resource);
-		watchPaths(filePathsToMonitor,configuration);
+		watchPaths(filePathsToMonitor,request.getCacheIndex());
 		return resource;
 	}
 	@SneakyThrows
-	private void watchPaths(List<FilePath> resourcePaths, String configuration) {
-		fileListener.addFiles(configuration, resourcePaths);
+	private void watchPaths(List<FilePath> resourcePaths, CacheIndex cacheIndex) {
+		fileListener.addFiles(cacheIndex, resourcePaths);
 		for (FilePath resourcePath : resourcePaths) {
 			FileObject fileObject = fileSystemManager.resolveFile(resourcePath.getPath());
 			fileMonitor.addFile(fileObject);
@@ -127,6 +137,11 @@ public class ResourceCache {
 	}
 	private void cache(BuildResourceRequest request, Resource resource) {
 		CachedResource cachedResource = new CachedResource(resource.getResourceType(), resource, request);
+		if (!pageCache.containsKey(request.getPage()))
+		{
+			pageCache.put(request.getPage(), new HashMap<String, CachedResource>());
+		}
+		Map<String,CachedResource> cache = pageCache.get(request.getPage());
 		cache.put(request.getConfiguration(), cachedResource);
 	}
 	private Resource getDefaultResource(List<FilePath> resourcePaths, String resourceType) {
@@ -134,26 +149,41 @@ public class ResourceCache {
 		return resource;
 	}
 	
-	public void invalidate(String configuration) {
-		CachedResource cachedResource = cache.remove(configuration);
-		if (cachedResource != null)
-		{
-			log.info("Cache of '{}' invalidated - rebuilding",configuration);
-			buildResource(cachedResource.request);
-		} else {
-			log.error("Cannot invalidate configuration '{}' as was not found in the cache",configuration);
+	public void invalidate(Collection<CacheIndex> configurations) {
+		// Take a copy to avoid a ConcurrentModificationException
+		List<CacheIndex> configurationsToChange = Lists.newArrayList(configurations);
+		for (CacheIndex cacheIndex : configurationsToChange) {
+			Map<String, CachedResource> cache = pageCache.get(cacheIndex.getPage());
+			CachedResource cachedResource = cache.remove(cacheIndex.getConfiguration());
+			if (cachedResource != null)
+			{
+				log.info("Cache of '{}' for page '{}' invalidated - rebuilding",cacheIndex.getConfiguration(),cacheIndex.getPage());
+				buildResource(cachedResource.request);
+			} else {
+				log.error("Cannot invalidate configuration '{}' for page '{}' as was not found in the cache",cacheIndex.getConfiguration(),cacheIndex.getPage());
+			}
 		}
 	}
 	
 	@Data
 	class BuildResourceRequest {
+		private final Object page;
 		private final String configuration;
 		private final String type;
 		private final List<FilePath> resourcePaths;
-		
+		private CacheIndex cacheIndex;
 		public int getResourceHash()
 		{
 			return resourcePaths.hashCode();
+		}
+		
+		public CacheIndex getCacheIndex()
+		{
+			if (cacheIndex == null)
+			{
+				cacheIndex = new CacheIndex(page, configuration);
+			}
+			return cacheIndex;
 		}
 	}
 	@Data
@@ -167,20 +197,26 @@ public class ResourceCache {
 		}
 	}
 	
+	@Data
+	class CacheIndex {
+		private final Object page;
+		private final String configuration;
+	}
+	
 	class CacheInvalidatingFileListener implements FileListener
 	{
 		private final ResourceCache cache;
-		private final Map<FilePath, String> filesToConfiguration;
+		private final Multimap<FilePath, CacheIndex> filesToConfiguration;
 		
 		public CacheInvalidatingFileListener(ResourceCache cache)
 		{
 			this.cache = cache;
-			filesToConfiguration = Maps.newHashMap();
+			filesToConfiguration = ArrayListMultimap.create();
 		}
-		public void addFiles(String configuration, List<FilePath> files)
+		public void addFiles(CacheIndex cacheIndex, List<FilePath> files)
 		{
 			for (FilePath filePath : files) {
-				filesToConfiguration.put(filePath, configuration);
+				filesToConfiguration.put(filePath, cacheIndex);
 			}
 		}
 		public void fileCreated(FileChangeEvent event) throws Exception {
@@ -198,9 +234,12 @@ public class ResourceCache {
 			FilePath filePath = FilePath.forAbsolutePath(event.getFile().getName().getPath());
 			if (filesToConfiguration.containsKey(filePath))
 			{
-				String configuration = filesToConfiguration.get(filePath);
-				log.info("File '{}' changed - invalidating cache for configuration '{}'",event.getFile().getName().getBaseName(),configuration);
-				cache.invalidate(configuration);
+				Collection<CacheIndex> configurations = filesToConfiguration.get(filePath);
+				for (CacheIndex configuration : configurations)
+				{
+					log.info("File '{}' changed - invalidating cache for configuration '{}'",event.getFile().getName().getBaseName(),configuration);
+				}
+				cache.invalidate(configurations);
 			} else {
 				log.error("File '{}' changed - but is not associated with any configuration - ignoring", event.getFile().getName().getBaseName());
 			}
