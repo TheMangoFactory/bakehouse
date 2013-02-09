@@ -13,16 +13,17 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.google.common.collect.Lists;
 
 @Slf4j
-public class FileManager implements ApplicationContextAware {
+public class FileManager implements ServletContextAware {
 
 	private File targetDir;
-	private WebApplicationContext wac;
-	
+	private ServletContext servletContext;
+
 	public FileManager()
 	{
 		this(new File("generated"));
@@ -31,7 +32,7 @@ public class FileManager implements ApplicationContextAware {
 	{
 		this.targetDir = targetDir;
 	}
-	
+
 	/**
 	 * Returns an absolute FilePath from FilePath.
 	 * 
@@ -42,7 +43,7 @@ public class FileManager implements ApplicationContextAware {
 	{
 		if (filePath.isSerlvetRelative())
 		{
-			String absolutePath = wac.getServletContext().getRealPath(filePath.getPath());
+			String absolutePath = servletContext.getRealPath(filePath.getPath());
 			return FilePath.forAbsolutePath(absolutePath);
 		} else {
 			return filePath;
@@ -55,18 +56,17 @@ public class FileManager implements ApplicationContextAware {
 		{
 			return filePath;
 		} else {
-			if (wac == null)
+			if (servletContext == null)
 			{
-				throw new IllegalStateException("Cannot resolve serlvet path, as no WebApplicationContext was found - are you sure you're running within a servlet?");
+				throw new IllegalStateException("Cannot resolve serlvet path, as no ServletContext was found - are you sure you're running within a servlet?");
 			}
-			ServletContext servletContext = wac.getServletContext();
 			String servletBasePath = servletContext.getRealPath("/");
 			String path = new File(servletBasePath).toURI().relativize(filePath.getUri()).getPath();
 			path = makeContextRelative(path,servletContext);
 			return FilePath.forServletPath(path);
 		}
 	}
-	
+
 	/**
 	 * Returns a file that is named derived
 	 * from fileName, but is guaranteed not to yet
@@ -109,17 +109,7 @@ public class FileManager implements ApplicationContextAware {
 		String fileName = filePath.getFileName();
 		return getNewFile(fileName);
 	}
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		if (applicationContext instanceof WebApplicationContext)
-		{
-			wac = (WebApplicationContext) applicationContext;
-			String realPath = wac.getServletContext().getRealPath(targetDir.getPath());
-			log.info("Updated target folder for generated content from {} to {}, relative to Servlet root",targetDir.getPath(),realPath);
-			targetDir = new File(realPath);
-		}
-	}
-	
+
 	private String makeContextRelative(String path, ServletContext servletContext) {
 		String contextPath = servletContext.getContextPath();
 		if (contextPath.length() == 0)
@@ -139,5 +129,12 @@ public class FileManager implements ApplicationContextAware {
 			result.add(makeServletRelative(filePath));
 		}
 		return result;
+	}
+
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+		String realPath =servletContext.getRealPath(targetDir.getPath());
+		log.info("Updated target folder for generated content from {} to {}, relative to Servlet root",targetDir.getPath(),realPath);
+		targetDir = new File(realPath);
 	}
 }
