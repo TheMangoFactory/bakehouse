@@ -2,6 +2,7 @@ package com.mangofactory.bakehouse.core.tags;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
 import lombok.AccessLevel;
@@ -41,8 +42,10 @@ public class ResourcesTag extends SpringAwareTagSupport {
 	@Override @SneakyThrows
 	public int doEndTag() throws JspException {
 		ResourceCache resourceCache = getResourceCache();
+		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+		String requestPath = request.getRequestURI();
 		
-		Resource resource = resourceCache.getResourceGroup(pageContext.getPage(),configuration,type,childrenResources);
+		Resource resource = resourceCache.getResourceGroup(requestPath,configuration,type,childrenResources);
 		pageContext.getOut().write(resource.getHtml());
 		return super.doEndTag();
 	}
