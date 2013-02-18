@@ -4,7 +4,21 @@
 	<groupId>com.mangofactory</groupId>
 	<artifactId>bakehouse-core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<organization>
+		<name>The Mango Factory</name>
+	</organization>
+	<issueManagement>
+		<system>Github</system>
+		<url>https://github.com/TheMangoFactory/bakehouse/issues</url>
+	</issueManagement>
+	<scm>
+		<url>scm:git:https://github.com/TheMangoFactory/bakehouse.git</url>
+		<connection>scm:git:https://github.com/TheMangoFactory/bakehouse.git</connection>
+		<developerConnection>scm:git:https://github.com/TheMangoFactory/bakehouse.git</developerConnection>
+	</scm>
+
 	<properties>
+		<skipGpgSigning>true</skipGpgSigning>
 		<spring.version>3.1.2.RELEASE</spring.version>
 	</properties>
 	<repositories>
@@ -12,7 +26,22 @@
 			<id>spring-milestone</id>
 			<url>http://repo.springsource.org/libs-milestone</url>
 		</repository>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype</name>
+			<url>https://oss.sonatype.org/</url>
+		</repository>
 	</repositories>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-snapshot</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-release</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+	</distributionManagement>
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -126,4 +155,64 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.2.2</version>
+				<configuration>
+					<mavenExecutorId>forked-path</mavenExecutorId>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<configuration>
+					<skip>${skipGpgSigning}</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
