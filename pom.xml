@@ -152,7 +152,7 @@
 		<dependency>
 			<groupId>com.mangofactory</groupId>
 			<artifactId>typescript4j</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.2</version>
 		</dependency>
 	</dependencies>
 	<build>
