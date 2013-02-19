@@ -9,7 +9,17 @@ Bakehouse:
  * Monitors your files for changes during dev, and recompiles for you
  * Deploys automatically
  * Caches your resources
- 
+
+## Dependency:
+Grab bakehouse from maven central:
+
+     <dependency>
+          <groupId>com.mangofactory</groupId>
+          <artifactId>bakehouse-core</artifactId>
+          <version>0.1.0</version>
+     </depenency>
+     
+
 ## Example:
 
 1.  Declare your resources in your jsp:
