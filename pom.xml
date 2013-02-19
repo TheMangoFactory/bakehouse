@@ -4,6 +4,7 @@
 	<artifactId>bakehouse-core</artifactId>
 	<version>0.1.1-SNAPSHOT</version>
 	<name>Bakehouse</name>
+	<url>http://themangofactory.github.com/bakehouse</url>
 	<description>Simplified JS/CSS pre-processors, integrated with Spring</description>
 	<organization>
 		<name>The Mango Factory</name>
