@@ -1,17 +1,24 @@
 package com.mangofactory.bakehouse.typescript;
 
 import java.io.File;
+import java.util.List;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import com.google.common.collect.Lists;
 import com.mangofactory.bakehouse.core.DefaultResource;
 import com.mangofactory.bakehouse.core.Resource;
+import com.mangofactory.bakehouse.core.compilers.CompilationProblem;
 import com.mangofactory.bakehouse.core.compilers.CompilationResult;
 import com.mangofactory.bakehouse.core.compilers.Compiler;
 import com.mangofactory.bakehouse.core.compilers.DefaultCompilationResult;
+import com.mangofactory.bakehouse.core.io.ConcatenatedFileset;
 import com.mangofactory.bakehouse.core.io.FileUtils;
+import com.mangofactory.typescript.CompilationContext;
+import com.mangofactory.typescript.CompilationContextRegistry;
 import com.mangofactory.typescript.EcmaScriptVersion;
+import com.mangofactory.typescript.TypescriptCompilationProblem;
 import com.mangofactory.typescript.TypescriptCompiler;
 
 /**
@@ -44,14 +51,42 @@ public class TypescriptCompilerAdapter implements Compiler {
 	}
 	@SneakyThrows
 	public CompilationResult compile(Resource resource, File targetFile) {
-		String typescriptSource = FileUtils.concatenateFilePaths(resource.getResourcePaths());
+		ConcatenatedFileset fileset = new ConcatenatedFileset(resource.getResourcePaths());
+		String typescriptSource = fileset.getConcatenatedSource();
+		CompilationContext compilationContext = CompilationContextRegistry.getNew();
 		try {
-			compiler.compile(typescriptSource, targetFile);
-			DefaultResource compiledResource = DefaultResource.fromFiles("text/javascript", targetFile);
-			return DefaultCompilationResult.successfulResult(compiledResource);
+			compilationContext.setThrowExceptionOnCompilationFailure(false);
+			compiler.compile(typescriptSource, targetFile, compilationContext);
+			
+			if (compilationContext.hasProblems())
+			{
+				List<CompilationProblem> problems = getCompilationProblems(compilationContext.getProblems(),fileset);
+				return DefaultCompilationResult.failedResult(resource, problems);
+			} else {
+				DefaultResource compiledResource = DefaultResource.fromFiles("text/javascript", targetFile);
+				return DefaultCompilationResult.successfulResult(compiledResource);
+			}
 		} catch (Exception e) {
-			String errorMessage = e.getMessage();
-			return DefaultCompilationResult.failedResult(resource, errorMessage);
+			return DefaultCompilationResult.failedResult(resource, e);
+		} finally {
+			CompilationContextRegistry.destroy(compilationContext);
 		}
+	}
+	private List<CompilationProblem> getCompilationProblems(
+			List<TypescriptCompilationProblem> problems, ConcatenatedFileset fileset) {
+		List<CompilationProblem> result = Lists.newArrayList();
+		for (TypescriptCompilationProblem typescriptProblem : problems)
+		{
+			
+			CompilationProblem problem = new CompilationProblem(
+					typescriptProblem.getLine(), 
+					typescriptProblem.getColumn(),
+					typescriptProblem.getMessage());
+			problem.setFilePath(fileset.getFilePathAtLine(typescriptProblem.getLine()));
+			problem.setSource(fileset.getSourceForFileAtLine(typescriptProblem.getLine()));
+			
+			result.add(problem);
+		}
+		return result;
 	}
 }

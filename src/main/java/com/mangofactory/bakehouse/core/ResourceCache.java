@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 import com.mangofactory.bakehouse.core.io.FileManager;
 import com.mangofactory.bakehouse.core.io.FilePath;
+import com.mangofactory.bakehouse.core.processors.CompilationFailureReportingProcessor;
 
 @Slf4j
 public class ResourceCache {
@@ -39,6 +40,7 @@ public class ResourceCache {
 	private DefaultFileMonitor fileMonitor;
 	private FileSystemManager fileSystemManager;
 	private final FileManager fileManager;
+	private CompilationFailureReportingProcessor failureReportingProcessor = new CompilationFailureReportingProcessor();
 	public ResourceCache(FileManager fileManager) throws FileSystemException {
 		this(VFS.getManager(), fileManager);
 	}
@@ -112,7 +114,7 @@ public class ResourceCache {
 		Resource resource = getDefaultResource(request.getResourcePaths(),request.getType());
 		if (configurationMap.containsKey(configuration))
 		{
-			List<ResourceProcessor> processors = configurationMap.get(configuration);
+			List<ResourceProcessor> processors = getProcessors(configuration); 
 			for (ResourceProcessor resourceProcessor : processors) {
 				resource = resourceProcessor.process(resource);
 				filePathsToMonitor.addAll(resourceProcessor.getAdditionalFilesToMonitor());
@@ -129,6 +131,13 @@ public class ResourceCache {
 		watchPaths(filePathsToMonitor,request.getCacheIndex());
 		return resource;
 	}
+	private List<ResourceProcessor> getProcessors(String configuration) {
+		List<ResourceProcessor> processors = configurationMap.get(configuration);
+		// decorate ... TODO : This, more elegantly.
+		processors.add(failureReportingProcessor);
+		return processors;
+	}
+
 	@SneakyThrows
 	private void watchPaths(List<FilePath> resourcePaths, CacheIndex cacheIndex) {
 		fileListener.addFiles(cacheIndex, resourcePaths);
@@ -256,6 +265,7 @@ public class ResourceCache {
 				resourceProcessor.configure(bakehouseConfig);
 			}
 		}
+		failureReportingProcessor.configure(bakehouseConfig);
 	}
 }
 

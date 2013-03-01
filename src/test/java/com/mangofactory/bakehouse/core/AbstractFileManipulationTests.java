@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 
+import com.mangofactory.bakehouse.core.io.FilePath;
+
 /**
  * Base class for tests that need to manipulate files.
  * Provides easy access for generating temp copies of the source
@@ -55,6 +57,10 @@ public abstract class AbstractFileManipulationTests {
 		FileUtils.deleteDirectory(generatedAssetsFolder);
 	}
 	
+	protected FilePath resourceFilePath(String filename)
+	{
+		return FilePath.fromFile(testResource(filename));
+	}
 	protected File testResource(String filename)
 	{
 		return new File("src/test/resources/" + filename);

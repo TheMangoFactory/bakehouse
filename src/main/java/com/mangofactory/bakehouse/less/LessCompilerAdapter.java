@@ -28,8 +28,7 @@ public class LessCompilerAdapter implements Compiler {
 			CssResource cssResource = new CssResource(FilePath.fromFile(targetFile));
 			return DefaultCompilationResult.successfulResult(cssResource);
 		} catch (Exception e) {
-			String errorMessage = e.getMessage();
-			return DefaultCompilationResult.failedResult(resource, errorMessage);
+			return DefaultCompilationResult.failedResult(resource, e);
 		}
 	}
 	private FilePath getAbsoluteSourcePath(Resource resource) {

@@ -31,6 +31,7 @@ public class TypescriptCompilerTests extends AbstractFileManipulationTests {
 		DefaultResource resource = DefaultResource.fromFiles("text/javascript",testResource("typescript.ts"));
 		File tempFile = getNewTempFile("js");
 		CompilationResult compilationResult = compiler.compile(resource, tempFile);
+			
 		assertTrue("Compilation failed: " + compilationResult.getMessages(), compilationResult.isSuccessful());
 		assertThat(compilationResult.getCompiledResource().getResourcePaths().size(), equalTo(1));
 		

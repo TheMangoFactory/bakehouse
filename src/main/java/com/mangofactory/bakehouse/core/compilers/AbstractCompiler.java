@@ -139,7 +139,8 @@ public abstract class AbstractCompiler implements Compiler {
 	protected Resource generateFailedResource(Resource resource,
 			LogCollectingOutputStream outputReader) {
 		Resource compiledResource;
-		compiledResource = new CompilationFailedResource(resource, outputReader.toString());
+		CompilationProblem problem = new CompilationProblem(-1,-1,outputReader.toString());
+		compiledResource = new CompilationFailedResource(resource, problem);
 		return compiledResource;
 	}
 	

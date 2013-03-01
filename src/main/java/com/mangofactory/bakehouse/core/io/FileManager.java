@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -23,7 +25,8 @@ public class FileManager implements ServletContextAware {
 
 	private File targetDir;
 	private ServletContext servletContext;
-
+	private FilePath frameworkPath;
+	
 	public FileManager()
 	{
 		this(new File("generated"));
@@ -48,6 +51,30 @@ public class FileManager implements ServletContextAware {
 		} else {
 			return filePath;
 		}
+	}
+	
+	public FilePath getAbsoluteFrameworkFilePath()
+	{
+		if (frameworkPath == null)
+			writeFrameworkSupportClasses();
+		return frameworkPath;
+	}
+	public FilePath getRelativeFrameworkFilePath()
+	{
+		return makeServletRelative(getAbsoluteFrameworkFilePath());
+	}
+	@SneakyThrows
+	public FilePath writeFrameworkSupportClasses()
+	{
+		if (frameworkPath != null)
+			return frameworkPath;
+		
+		File frameworkFolder = new File(FilenameUtils.concat(targetDir.getCanonicalPath(), "frameworkAssets"));
+		FileUtils.forceMkdir(frameworkFolder);
+		frameworkPath = FilePath.fromFile(frameworkFolder);
+		new FrameworkSupport().writeFrameworkFiles(frameworkPath);
+		
+		return frameworkPath;
 	}
 
 	public FilePath makeServletRelative(FilePath filePath)
