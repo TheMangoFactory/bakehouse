@@ -6,6 +6,7 @@ import com.mangofactory.bakehouse.core.io.FilePath;
 
 public interface Resource {
 
+	Boolean isCachable();
 	String getResourceType();
 	String getHtml();
 	List<FilePath> getResourcePaths();

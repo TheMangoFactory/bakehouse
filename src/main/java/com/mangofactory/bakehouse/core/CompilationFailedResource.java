@@ -58,5 +58,8 @@ public class CompilationFailedResource implements Resource {
 		// No-op
 		return this;
 	}
+	public Boolean isCachable() {
+		return false;
+	}
 
 }

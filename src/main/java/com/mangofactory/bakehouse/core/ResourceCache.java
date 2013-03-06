@@ -125,12 +125,17 @@ public class ResourceCache {
 		
 		List<FilePath> servletRelativePaths = fileManager.makeServletRelative(resource.getResourcePaths());
 		resource = resource.setResourcePaths(servletRelativePaths);
+
+		if (resource.isCachable())
+		{
+			log.info("Caching resource '{}'", configuration);
+			cache(request,resource);		
+		}
 		
-		log.info("Caching resource '{}'", configuration);
-		cache(request,resource);
 		watchPaths(filePathsToMonitor,request.getCacheIndex());
 		return resource;
 	}
+
 	private List<ResourceProcessor> getProcessors(String configuration) {
 		List<ResourceProcessor> processors = configurationMap.get(configuration);
 		// decorate ... TODO : This, more elegantly.

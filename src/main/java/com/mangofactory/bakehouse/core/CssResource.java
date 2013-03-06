@@ -37,4 +37,7 @@ public class CssResource implements Resource {
 	public Resource setResourcePaths(List<FilePath> paths) {
 		return new CssResource(paths);
 	}
+	public Boolean isCachable() {
+		return true;
+	}
 }

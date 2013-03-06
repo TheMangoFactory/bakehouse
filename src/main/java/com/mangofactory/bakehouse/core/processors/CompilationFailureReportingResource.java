@@ -64,4 +64,8 @@ public class CompilationFailureReportingResource implements Resource {
 		return this;
 	}
 
+	public Boolean isCachable() {
+		return false;
+	}
+
 }

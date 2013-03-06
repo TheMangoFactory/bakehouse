@@ -32,10 +32,20 @@ public class CompilationProblem {
 	
 	public String getLocationDescription()
 	{
-		return filePath.getFileName() + " Line: " + line + " Column: " + column;
+		if (filePath == null)
+		{
+			return "Unknown location";
+		} else {
+			return filePath.getFileName() + " Line: " + line + " Column: " + column;
+		}
 	}
 	public String getSource(int startLine, int endLine)
 	{
+		if (StringUtils.isEmpty(source))
+		{
+			return "";
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		String[] split = source.split("\n");
 		for (int i = startLine; i <= endLine; i++)
@@ -48,6 +58,11 @@ public class CompilationProblem {
 	}
 
 	public int getLineCount() {
-		return source.split("\n").length;
+		if (source == null)
+		{
+			return 0;
+		} else {
+			return source.split("\n").length;
+		}
 	}
 }

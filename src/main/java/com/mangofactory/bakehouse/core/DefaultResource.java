@@ -53,4 +53,7 @@ public class DefaultResource implements Resource {
 	public Resource setResourcePaths(List<FilePath> paths) {
 		return new DefaultResource(paths, resourceType);
 	}
+	public Boolean isCachable() {
+		return true;
+	}
 }
