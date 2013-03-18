@@ -52,7 +52,7 @@ public class CompilationProblem {
 		{
 			if (sb.length() > 0)
 				sb.append("\n");
-			sb.append(split[i].trim());
+			sb.append(split[i - 1].trim());
 		}
 		return sb.toString();
 	}
