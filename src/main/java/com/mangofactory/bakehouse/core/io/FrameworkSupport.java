@@ -14,20 +14,20 @@ import com.google.common.collect.Lists;
 public class FrameworkSupport {
 
 	private final static List<String> ASSETS = Lists.newArrayList(
-			"shBrushJScript.js",
-			"shCore.css",
-			"shCore.js",
-			"jquery-1.8.3.js",
-			"shThemeRDark.css");
+			"/shBrushJScript.js",
+			"/shCore.css",
+			"/shCore.js",
+			"/jquery-1.8.3.js",
+			"/shThemeRDark.css");
 	
 	@SneakyThrows
 	public void writeFrameworkFiles(FilePath frameworkPath) {
 		for (String asset : ASSETS)
 		{
-			String source = IOUtils.toString(getClass().getResource(asset));
-			String destinationFilename = FilenameUtils.concat(frameworkPath.getPath(), asset);
+			String source = IOUtils.toString(getClass().getResourceAsStream(asset));
+			String assetFileName = FilenameUtils.getName(asset);
+			String destinationFilename = FilenameUtils.concat(frameworkPath.getPath(), assetFileName);
 			FileUtils.write(new File(destinationFilename), source);
 		}
 	}
-	
 }

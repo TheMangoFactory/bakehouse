@@ -35,7 +35,8 @@ public class CompilationFailedResource implements Resource {
 	@SneakyThrows
 	String getHtmlTemplate()
 	{
-		String template = IOUtils.toString(getClass().getResource("compilationFailed.html"));
+		
+		String template = IOUtils.toString(getClass().getResourceAsStream("/compilationFailed.html"));
 		return template;
 	}
 	@SneakyThrows
