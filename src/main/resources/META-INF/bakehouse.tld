@@ -37,7 +37,13 @@
 		<attribute>
 			<description>Defines the path to the resource</description>
 			<name>src</name>
-			<required>true</required>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Defines a pattern of resources to match</description>
+			<name>pattern</name>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>

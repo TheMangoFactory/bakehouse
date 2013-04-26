@@ -48,11 +48,11 @@ public class CompilationProblem {
 		
 		StringBuilder sb = new StringBuilder();
 		String[] split = source.split("\n");
-		for (int i = startLine; i <= endLine; i++)
+		for (int i = startLine; i < endLine; i++)
 		{
 			if (sb.length() > 0)
 				sb.append("\n");
-			sb.append(split[i - 1].trim());
+			sb.append(split[i].trim());
 		}
 		return sb.toString();
 	}

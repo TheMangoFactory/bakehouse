@@ -4,6 +4,7 @@ import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspException;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
@@ -11,11 +12,23 @@ import org.apache.commons.lang.StringUtils;
 
 import com.mangofactory.bakehouse.config.BakehouseConfig;
 
+@NoArgsConstructor 
 public class ResourceTag extends SpringAwareTagSupport {
 
 	private BakehouseConfig _config;
 	@Getter @Setter
 	private String src;
+	
+	@Getter @Setter
+	private String pattern;
+	
+	public static ResourceTag forPattern(String pattern)
+	{
+		ResourceTag tag = new ResourceTag();
+		tag.setPattern(pattern);
+		return tag;
+		
+	}
 	
 	@Getter @Setter
 	private String type = "text/javascript";

@@ -63,7 +63,7 @@ public abstract class AbstractFileManipulationTests {
 	}
 	protected File testResource(String filename)
 	{
-		return new File("src/test/resources/" + filename);
+		return new File(FilenameUtils.concat("src/test/resources/", filename));
 	}
 	
 	protected void delete(Iterable<File> files)
