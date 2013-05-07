@@ -53,7 +53,11 @@ public class TypescriptCompilerAdapter implements Compiler {
 	public CompilationResult compile(Resource resource, File targetFile) {
 		ConcatenatedFileset fileset = new ConcatenatedFileset(resource.getResourcePaths());
 		String typescriptSource = fileset.getConcatenatedSource();
-		CompilationContext compilationContext = CompilationContextRegistry.getNew();
+		// TODO : This isn't right, it assumes that all files are sitting
+		// in the same directory.
+		File rootFile = resource.getResourcePaths().get(0).getFile();
+		File rootDirectory = rootFile.getParentFile();
+		CompilationContext compilationContext = CompilationContextRegistry.getNew(rootDirectory);
 		try {
 			compilationContext.setThrowExceptionOnCompilationFailure(false);
 			compiler.compile(typescriptSource, targetFile, compilationContext);
