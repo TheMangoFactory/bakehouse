@@ -57,7 +57,7 @@ public class ResourcesTagTests extends AbstractFileManipulationTests {
 		tag.setFileResolver(new TestFileResolver());
 		
 		tag.addChild(ResourceTag.forPattern("**.js"));
-		assertThat(tag.getChildrenResources().size(),equalTo(6));
+		assertThat(tag.getChildrenResources().size(),equalTo(5));
 		assertTrue(tag.getChildrenResources().contains(FilePath.fromFile(testResource("js/empty.js"))));
 		assertTrue(tag.getChildrenResources().contains(FilePath.fromFile(testResource("testFile1.js"))));
 	}
